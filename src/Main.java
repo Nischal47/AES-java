@@ -1,3 +1,4 @@
+import javax.swing.plaf.synth.SynthLookAndFeel;
 import java.lang.reflect.Array;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
@@ -9,15 +10,6 @@ public class Main {
         Base64.Decoder dec = Base64.getDecoder();
 
         AES aes = new AES();
-//
-//        String key = "9Tgfy5N79xTvt5NWn/ALDQ==";
-//        String message = "qwertyuioplk";
-
-//        byte[] bKey = enc.encode(key.getBytes());
-//        System.out.println(Arrays.toString(bKey));
-//
-//        byte[] bMessage =  enc.encode(message.getBytes());
-//        System.out.println(Arrays.toString(bMessage));
 
         byte[] bKey = new byte[ ]{79, 86, 82, 110, 90, 110, 107, 49, 84, 106, 99, 53, 101, 70, 82, 50, 100, 68, 86, 79, 86, 50, 52, 118, 81, 85, 120, 69, 85, 84, 48, 57};
 
@@ -28,12 +20,8 @@ public class Main {
 
         byte[] cipherText = aes.encryptText(bMessage,bKey);
 
-        String cipher = "9170F2F30411FB6A152CBE16FF59DE";
-
-        byte[] plainText = aes.decryptText(cipher,bKey);
+        byte[] plainText = aes.decryptText(cipherText,bKey);
         System.out.println( "Cipher Text " + Arrays.toString(cipherText));
-//        System.out.println( "Cipher Text " + cipherText.length());
         System.out.println("plain Text "+Arrays.toString(plainText));
-//        System.out.println("plain Text "+plainText.length());
     }
 }

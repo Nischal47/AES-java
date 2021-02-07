@@ -2,7 +2,7 @@ import java.util.Arrays;
 
 public class AES {
 
-    private static final int BITS = 15;
+    private static final int BITS = 16;
     private static final int ROUNDS = 14;
     private static final int NO_OF_WORDS_IN_KEY = 60;
     private static final int KEY_LENGTH = 32;
@@ -66,7 +66,6 @@ public class AES {
 
     /* Substitute Bytes */
     private byte[] subBytes(byte[] in) {
-        System.out.println("in " + bytesToHex(in));
         byte[] out = new byte[BITS];
         for (int i = 0 ; i < BITS ; i++) {
             byte a = in[i];
@@ -99,7 +98,6 @@ public class AES {
                 temp[4 * j + i] = in[4 * i + j];
             }
         }
-        //System.out.println("temp: " + bytesToHex(temp));
         for (int i = 0; i < BITS / 4; i++) {
             byte[] a = Arrays.copyOfRange(temp, (4 * i), (4 * i + 4));
             byte[] b = leftShift(a, i);
@@ -224,21 +222,14 @@ public class AES {
         byte byte0x80 = hexStringToByteArray("80")[0];
         for (counter = 0; counter < 8; counter++) {
             if ((b & 0x01) == 1) {
-                //System.out.println("lower bit of b is set");
                 p = (byte) ((p ^ a) & 0xff);
             }
             high_bit_set = (byte) (a & 0x80);
-            //printByte("high_bit_set", high_bit_set);
             a <<= 1;
             if (high_bit_set == byte0x80) {
-                //System.out.println("higher bit of a is set");
                 a = (byte) ((a ^ 0x1b) & 0xff);
             }
             b = (byte) ((b >> 1) & 0x7f);
-
-            //printByte("a", a);
-            //printByte("b", b);
-            //printByte("p", p);
         }
         return p;
     }
@@ -264,7 +255,6 @@ public class AES {
         return result;
     }
 
-    /* http://stackoverflow.com/questions/9655181/convert-from-byte-array-to-hex-string-in-java */
     public static String bytesToHex(byte[] bytes) {
         char[] hexChars = new char[bytes.length * 2];
         for (int j = 0; j < bytes.length; j++) {
@@ -276,65 +266,38 @@ public class AES {
     }
 
     public byte[] encryptText(byte[] plainText, byte[] key) throws Exception {
-        System.out.println("plain text " +bytesToHex(plainText));
-        System.out.println("plain text " +plainText.length);
-        System.out.println("key text " +bytesToHex(key));
         byte[] cipher = new byte[BLOCK_LENGTH];
         this.word = expandKey(key);
         byte[] roundKey = getRoundKey(0);
 //        /* Round 0 */
-        System.out.println("Round key"+ bytesToHex(roundKey));
         System.out.println(bytesToHex(plainText));
         cipher = XORBytes(plainText, roundKey);
-        System.out.println(bytesToHex(cipher));
-        System.out.println("cipher"+plainText.length);
         /* Rounds 1 to 13*/
         for (int i = 1; i < ROUNDS; i++) {
-            System.out.println("Round " + i);
-            System.out.println("before subbyte " +  bytesToHex(cipher));
             cipher = subBytes(cipher);
-            System.out.println("SubBytes: " + bytesToHex(cipher));
             cipher = shiftRows(cipher);
-            System.out.println("ShiftRows: " + bytesToHex(cipher));
             cipher = mixColumns(cipher);
-            System.out.println("MixColumns: " + bytesToHex(cipher));
             roundKey = getRoundKey(i);
-            System.out.println("RoundKey: " + bytesToHex(roundKey));
             cipher = XORBytes(cipher, roundKey);
-            System.out.println("CIPHER: " + bytesToHex(cipher));
-            System.out.println("cipher"+plainText.length);
         }
         /* Round 14*/
-        System.out.println("Round " + ROUNDS);
         cipher = subBytes(cipher);
-        System.out.println("SubBytes: " + bytesToHex(cipher));
         cipher = shiftRows(cipher);
-        System.out.println("ShiftRows: " + bytesToHex(cipher));
         roundKey = getRoundKey(ROUNDS);
-        System.out.println("RoundKey: " + bytesToHex(roundKey));
         cipher = XORBytes(cipher, roundKey);
-        System.out.println("CIPHER: " + bytesToHex(cipher));
-        System.out.println("cipher"+plainText.length);
         return cipher;
     }
 
-    public byte[] decryptText(String cipher1, byte[] key) throws Exception {
-        byte[] cipher = hexStringToByteArray(cipher1);
+    public byte[] decryptText(byte[] cipher, byte[] key) throws Exception {
         byte[] plainText = new byte[BLOCK_LENGTH];
         this.word = expandKey(key);
         byte[] roundKey = getRoundKey(ROUNDS);
-        System.out.println("Round 0\n" + bytesToHex(roundKey));
         /* Round 0 */
         plainText = XORBytes(cipher, roundKey);
-        System.out.println("cipher\n" + bytesToHex(cipher));
-        System.out.println("plaintext\n" + bytesToHex(plainText));
         /* Rounds 1 to 13*/
         for (int i = ROUNDS - 1 ; i > 0 ; i--) {
-            System.out.println("before ShiftRows\n" + bytesToHex(plainText));
             plainText = inverseShiftRows(plainText);
-            System.out.println("ShiftRows\n" + bytesToHex(plainText));
             plainText = inverseSubBytes(plainText);
-            System.out.println("invSub" + bytesToHex(plainText));
             roundKey = getRoundKey(i);
             plainText = XORBytes(plainText, roundKey);
             plainText = inverseMixColumns(plainText);
@@ -344,7 +307,6 @@ public class AES {
         plainText = inverseSubBytes(plainText);
         roundKey = getRoundKey(0);
         plainText = XORBytes(plainText, roundKey);
-        System.out.println("final plain" + bytesToHex(plainText));
         return plainText;
     }
 
@@ -359,24 +321,18 @@ public class AES {
         Word temp;
         for (int i = 0; i < 8; i++) {
             w[i] = new Word(key[4 * i], key[4 * i + 1], key[4 * i + 2], key[4 * i + 3]);
-            System.out.println("w" + i + " = " + w[i]);
         }
 
         for (int i = 8; i < NO_OF_WORDS_IN_KEY; i++) {
             temp = w[i - 1];
             Word temp1 = new Word();
             temp1.setWord(temp.getWord());
-            System.out.println("w" + (i - 1) + " = " + temp);
             if (i % 8 == 0) {
                 temp1.rotWord();
-                System.out.println("Rot=" + temp1);
                 temp1.subWord();
-                System.out.println("Sub=" + temp1);
                 temp1 = Word.XORWords(temp1, Rcon[(i / 4) - 1]);
-                System.out.println("Rcon" + temp1);
             }
             w[i] = Word.XORWords(w[i - 8], temp1);
-            System.out.println("w" + i + " = " + w[i]);
         }
         return Word.wordsToBytes(w);
     }
@@ -384,7 +340,6 @@ public class AES {
     private byte[] getRoundKey(int round) {
         byte[] out = new byte[KEY_LENGTH];
         out = Arrays.copyOfRange(word, 16 * round, 16 * round + 16);
-        System.out.println("round key "+  round +" "+bytesToHex(out));
         return out;
     }
 
