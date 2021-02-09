@@ -32,7 +32,7 @@ public class CtrMode {
             }
             while (j < 16) {
                 /* pad with white spaces */
-                block[j++] = 0x20;
+                block[j++] = 0x00;
             }
 
             cipherIv =  aes.encryptText(iv,key);
@@ -77,7 +77,7 @@ public class CtrMode {
             }
             while (j < 16) {
                 /* pad with white spaces */
-                block[j++] = 0x20;
+                block[j++] = 0x00;
             }
 
             System.out.println("block " + i+" "+Arrays.toString(block));

@@ -48,7 +48,7 @@ public class Main {
         String cipher = new String(cipherText, StandardCharsets.UTF_8);
         System.out.println("cipher"+ cipher);
         System.out.println("plain"+Arrays.toString(plainText));
-        String str = new String(plainText, StandardCharsets.UTF_8).trim();
+        String str = new String(plainText, StandardCharsets.UTF_8);
         System.out.println("plain "+ str);
     }
 }
