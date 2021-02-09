@@ -343,7 +343,7 @@ public class AES {
         return out;
     }
 
-    public static byte[] XORBytes(byte[] in1, byte[] in2) {
+    public byte[] XORBytes(byte[] in1, byte[] in2) {
         byte[] out = new byte[in1.length];
         for (int i = 0; i < in1.length; i++) {
             out[i] = (byte) ((in1[i] ^ in2[i]) & 0xff);
